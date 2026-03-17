@@ -1,6 +1,29 @@
 import { useState } from 'react'
 import { AGENCY_NAME } from '../config.js'
 
+function maskPhone(value) {
+  const digits = value.replace(/\D/g, '').slice(0, 11)
+  if (digits.length <= 10) {
+    return digits
+      .replace(/^(\d{2})(\d)/, '($1) $2')
+      .replace(/(\d{4})(\d)/, '$1-$2')
+  }
+  return digits
+    .replace(/^(\d{2})(\d)/, '($1) $2')
+    .replace(/(\d{5})(\d)/, '$1-$2')
+}
+
+function maskCurrency(value) {
+  const digits = value.replace(/\D/g, '').slice(0, 12)
+  if (!digits) return ''
+  const num = parseInt(digits, 10) / 100
+  return num.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+}
+
+function parseCurrency(masked) {
+  return masked.replace(/\D/g, '')
+}
+
 const WHATSAPP_NUMBER = '551152427599'
 
 function buildWhatsAppMessage({ nome, telefone, email, empresa, site, faturamentoMensal, profileName, totalScore, pharmaId }) {
@@ -19,7 +42,7 @@ function buildWhatsAppMessage({ nome, telefone, email, empresa, site, faturament
     email ? `Email: ${email}` : null,
     empresa ? `Empresa: ${empresa}` : null,
     site ? `Site: ${site}` : null,
-    faturamentoMensal ? `Faturamento médio: R$ ${parseInt(faturamentoMensal).toLocaleString('pt-BR')}` : null,
+    faturamentoMensal ? `Faturamento médio: ${faturamentoMensal}` : null,
     pharmaId ? `\nID: ${pharmaId}` : null,
   ].filter(Boolean).join('\n')
 
@@ -40,7 +63,10 @@ export default function ScreenForm({ profileName, totalScore, pharmaId, onSubmit
 
   function handleChange(e) {
     const { name, value } = e.target
-    setForm(prev => ({ ...prev, [name]: value }))
+    let masked = value
+    if (name === 'telefone') masked = maskPhone(value)
+    if (name === 'faturamentoMensal') masked = maskCurrency(value)
+    setForm(prev => ({ ...prev, [name]: masked }))
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: null }))
   }
 
@@ -57,7 +83,7 @@ export default function ScreenForm({ profileName, totalScore, pharmaId, onSubmit
     if (Object.keys(errs).length > 0) { setErrors(errs); return }
 
     setLoading(true)
-    await onSubmit(form)
+    await onSubmit({ ...form, faturamentoMensal: parseCurrency(form.faturamentoMensal) })
 
     const msg = buildWhatsAppMessage({
       ...form,
@@ -179,7 +205,7 @@ export default function ScreenForm({ profileName, totalScore, pharmaId, onSubmit
               name="faturamentoMensal"
               value={form.faturamentoMensal}
               onChange={handleChange}
-              placeholder="Ex: 80000"
+              placeholder="R$ 0,00"
               inputMode="numeric"
               className={inputClass('faturamentoMensal')}
             />
