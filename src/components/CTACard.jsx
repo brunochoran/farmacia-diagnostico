@@ -1,6 +1,6 @@
-import { WHATSAPP_URL, AGENCY_NAME } from '../config.js'
+import { AGENCY_NAME } from '../config.js'
 
-export default function CTACard({ profile, positionamentoNote }) {
+export default function CTACard({ profile, positionamentoNote, onOpenForm }) {
   const showPalestiraLine = positionamentoNote < 3
 
   return (
@@ -20,14 +20,12 @@ export default function CTACard({ profile, positionamentoNote }) {
         </p>
       )}
 
-      <a
-        href={WHATSAPP_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="inline-block w-full text-center bg-white text-brand font-black text-sm py-4 px-6 hover:bg-gray-100 active:scale-95 transition-all duration-150"
+      <button
+        onClick={onOpenForm}
+        className="w-full text-center bg-white text-brand font-black text-sm py-4 px-6 hover:bg-gray-100 active:scale-95 transition-all duration-150"
       >
         Conversar com a equipe da {AGENCY_NAME} →
-      </a>
+      </button>
     </div>
   )
 }

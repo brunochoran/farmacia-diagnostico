@@ -16,7 +16,7 @@ import Bottlenecks from './Bottlenecks.jsx'
 import CTACard from './CTACard.jsx'
 import { AGENCY_NAME } from '../config.js'
 
-export default function ScreenResult({ answers, ticketAverage, onRestart }) {
+export default function ScreenResult({ answers, ticketAverage, onRestart, onOpenForm }) {
   const totalScore = useMemo(() => getTotalScore(answers), [answers])
   const overallNote = useMemo(() => getOverallNote(totalScore), [totalScore])
   const profile = useMemo(() => getMaturityProfile(totalScore), [totalScore])
@@ -70,7 +70,7 @@ export default function ScreenResult({ answers, ticketAverage, onRestart }) {
 
         {/* 5 — CTA */}
         <div className="fade-in fade-in-5">
-          <CTACard profile={profile} positionamentoNote={positionamentoNote} />
+          <CTACard profile={profile} positionamentoNote={positionamentoNote} onOpenForm={onOpenForm} />
         </div>
 
         {/* Refazer */}
