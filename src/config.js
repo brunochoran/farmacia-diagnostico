@@ -10,10 +10,10 @@ export const EVENT_NAME = 'Pharma Share 2026'
 
 // Benchmarks de referência (baseados em cases reais)
 export const BENCHMARK_INVESTIMENTO = 3000   // verba mensal de referência (R$)
-export const BENCHMARK_CPL = 7.50            // custo por conversa benchmark
-export const BENCHMARK_CONVERSAS = 400       // conversas/mês com a verba de referência
-export const BENCHMARK_CONVERSAO = 0.70      // taxa de conversão de referência
-export const BENCHMARK_VENDAS = 280          // vendas/mês benchmark
+export const BENCHMARK_CPL = 15             // custo por conversa benchmark
+export const BENCHMARK_CONVERSAS = 200      // conversas/mês com a verba de referência (3000 / 15)
+export const BENCHMARK_CONVERSAO = 0.30     // taxa de conversão de referência
+export const BENCHMARK_VENDAS = 60          // vendas/mês benchmark (200 × 30%)
 
 // Ticket médio por faixa selecionada pelo usuário
 export const TICKET_OPTIONS = [

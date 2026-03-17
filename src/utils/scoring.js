@@ -91,6 +91,7 @@ export function getBottlenecks(answers) {
  */
 export function getRevenueEstimate(ticketAverage) {
   const faturamento = BENCHMARK_VENDAS * ticketAverage
+  const roas = faturamento / BENCHMARK_INVESTIMENTO
   return {
     investimento: BENCHMARK_INVESTIMENTO,
     cpl: BENCHMARK_CPL,
@@ -98,6 +99,7 @@ export function getRevenueEstimate(ticketAverage) {
     taxaConversao: BENCHMARK_CONVERSAO,
     vendas: BENCHMARK_VENDAS,
     faturamento,
+    roas,
   }
 }
 
