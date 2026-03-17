@@ -26,24 +26,12 @@ function parseCurrency(masked) {
 
 const WHATSAPP_NUMBER = '551152427599'
 
-function buildWhatsAppMessage({ nome, telefone, email, empresa, site, faturamentoMensal, profileName, totalScore, pharmaId }) {
+function buildWhatsAppMessage({ pharmaId }) {
   const linhas = [
-    `Olá equipe ${AGENCY_NAME}! 👋`,
+    `Olá equipe ${AGENCY_NAME}!`,
     ``,
     `Acabei de fazer o *Diagnóstico Digital* e gostaria de conversar.`,
-    ``,
-    `📋 *Meu Resultado*`,
-    `Perfil: ${profileName}`,
-    `Score: ${totalScore}/45`,
-    ``,
-    `👤 *Meus Dados*`,
-    `Nome: ${nome}`,
-    `Tel: ${telefone}`,
-    email ? `Email: ${email}` : null,
-    empresa ? `Empresa: ${empresa}` : null,
-    site ? `Site: ${site}` : null,
-    faturamentoMensal ? `Faturamento médio: ${faturamentoMensal}` : null,
-    pharmaId ? `\nID: ${pharmaId}` : null,
+    pharmaId ? `ID: ${pharmaId}` : null,
   ].filter(Boolean).join('\n')
 
   return encodeURIComponent(linhas)
@@ -85,12 +73,7 @@ export default function ScreenForm({ profileName, totalScore, pharmaId, onSubmit
     setLoading(true)
     await onSubmit({ ...form, faturamentoMensal: parseCurrency(form.faturamentoMensal) })
 
-    const msg = buildWhatsAppMessage({
-      ...form,
-      profileName,
-      totalScore,
-      pharmaId,
-    })
+    const msg = buildWhatsAppMessage({ pharmaId })
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank')
   }
 
