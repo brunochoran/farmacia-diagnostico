@@ -17,20 +17,6 @@ export default function ScreenPresentation({ onStart }) {
         </p>
       </div>
 
-      {/* Destaques */}
-      <div className="w-full max-w-sm space-y-3 mb-10">
-        {[
-          { icon: '📊', text: '18 perguntas em 6 áreas estratégicas' },
-          { icon: '🎯', text: 'Scorecard visual com nota por área' },
-          { icon: '💰', text: 'Estimativa do faturamento que você está perdendo' },
-        ].map(({ icon, text }) => (
-          <div key={text} className="flex items-center gap-3 bg-gray-50 px-4 py-3">
-            <span className="text-lg">{icon}</span>
-            <span className="text-sm text-gray-700 font-medium">{text}</span>
-          </div>
-        ))}
-      </div>
-
       {/* CTA */}
       <button
         onClick={onStart}
