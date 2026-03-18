@@ -99,9 +99,13 @@ export default function App() {
 
   // Salva o lead e redireciona pro WhatsApp (o redirect acontece dentro do ScreenForm)
   async function handleFormSubmit(formData) {
+    const totalScore = getTotalScore(answers)
+    const profile = getMaturityProfile(totalScore)
     await saveLead({
       diagnosticoId,
       pharmaId,
+      profileName: profile.name,
+      totalScore,
       ...formData,
     })
   }

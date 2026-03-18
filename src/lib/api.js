@@ -29,7 +29,7 @@ export async function saveDiagnostico({ pharmaId, totalScore, profileName, ticke
   return id
 }
 
-export async function saveLead({ diagnosticoId, pharmaId, nome, telefone, email, empresa, site, faturamentoMensal }) {
+export async function saveLead({ diagnosticoId, pharmaId, nome, telefone, email, empresa, site, faturamentoMensal, profileName, totalScore }) {
   if (!supabase) {
     console.error('[saveLead] Supabase não inicializado.')
     return null
@@ -54,5 +54,16 @@ export async function saveLead({ diagnosticoId, pharmaId, nome, telefone, email,
   }
 
   console.log('[saveLead] Salvo com sucesso')
+
+  // Envia para o Kommo via Vercel Function (fire-and-forget, não bloqueia o fluxo)
+  fetch('/api/kommo', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ nome, telefone, email, empresa, site, faturamentoMensal, profileName, totalScore, pharmaId }),
+  })
+    .then(r => r.json())
+    .then(d => console.log('[Kommo] Resposta:', d))
+    .catch(err => console.error('[Kommo] Erro ao chamar function:', err))
+
   return true
 }
