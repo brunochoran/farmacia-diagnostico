@@ -6,9 +6,12 @@ export async function saveDiagnostico({ pharmaId, totalScore, profileName, ticke
     return null
   }
 
+  const id = crypto.randomUUID()
+
   const { error } = await supabase
     .from('diagnosticos')
     .insert({
+      id,
       pharma_id: pharmaId || null,
       total_score: totalScore,
       profile_name: profileName,
@@ -22,8 +25,8 @@ export async function saveDiagnostico({ pharmaId, totalScore, profileName, ticke
     return null
   }
 
-  console.log('[saveDiagnostico] Salvo com sucesso')
-  return true
+  console.log('[saveDiagnostico] Salvo com sucesso, id:', id)
+  return id
 }
 
 export async function saveLead({ diagnosticoId, pharmaId, nome, telefone, email, empresa, site, faturamentoMensal }) {
