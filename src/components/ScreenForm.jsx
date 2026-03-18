@@ -47,6 +47,7 @@ export default function ScreenForm({ profileName, totalScore, pharmaId, onSubmit
     faturamentoMensal: '',
   })
   const [loading, setLoading] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
   const [errors, setErrors] = useState({})
 
   function handleChange(e) {
@@ -71,10 +72,37 @@ export default function ScreenForm({ profileName, totalScore, pharmaId, onSubmit
     if (Object.keys(errs).length > 0) { setErrors(errs); return }
 
     setLoading(true)
-    await onSubmit({ ...form, faturamentoMensal: parseCurrency(form.faturamentoMensal) })
-
+    try {
+      await onSubmit({ ...form, faturamentoMensal: parseCurrency(form.faturamentoMensal) })
+    } catch (err) {
+      console.error('Erro ao salvar:', err)
+    }
     const msg = buildWhatsAppMessage({ pharmaId })
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank')
+    setLoading(false)
+    setSubmitted(true)
+  }
+
+  if (submitted) {
+    return (
+      <div className="min-h-dvh bg-gray-50 flex flex-col items-center justify-center px-8 text-center">
+        <div className="w-16 h-16 rounded-full bg-brand/10 flex items-center justify-center mb-6">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </div>
+        <h2 className="text-xl font-bold text-gray-900 mb-2">Dados enviados!</h2>
+        <p className="text-sm text-gray-400 mb-8 max-w-xs">
+          O WhatsApp foi aberto com sua mensagem. Nossa equipe vai entrar em contato em breve.
+        </p>
+        <button
+          onClick={onBack}
+          className="text-sm text-brand font-semibold underline underline-offset-2"
+        >
+          Voltar ao diagnóstico
+        </button>
+      </div>
+    )
   }
 
   const inputClass = (field) =>
