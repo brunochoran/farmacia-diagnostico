@@ -1,9 +1,13 @@
 import { supabase } from './supabase.js'
 
-/**
- * Salva o resultado do diagnóstico e retorna o ID gerado.
- */
 export async function saveDiagnostico({ pharmaId, totalScore, profileName, ticketAverage, answers, revenue }) {
+  if (!supabase) {
+    console.error('[saveDiagnostico] Supabase não inicializado — verifique as variáveis de ambiente no Vercel.')
+    return null
+  }
+
+  console.log('[saveDiagnostico] Salvando...', { pharmaId, totalScore, profileName })
+
   const { data, error } = await supabase
     .from('diagnosticos')
     .insert({
@@ -18,16 +22,22 @@ export async function saveDiagnostico({ pharmaId, totalScore, profileName, ticke
     .single()
 
   if (error) {
-    console.error('Erro ao salvar diagnóstico:', error)
+    console.error('[saveDiagnostico] Erro:', error.message, error)
     return null
   }
+
+  console.log('[saveDiagnostico] Salvo com ID:', data.id)
   return data.id
 }
 
-/**
- * Salva os dados do lead e retorna o ID gerado.
- */
 export async function saveLead({ diagnosticoId, pharmaId, nome, telefone, email, empresa, site, faturamentoMensal }) {
+  if (!supabase) {
+    console.error('[saveLead] Supabase não inicializado — verifique as variáveis de ambiente no Vercel.')
+    return null
+  }
+
+  console.log('[saveLead] Salvando...', { nome, telefone, diagnosticoId })
+
   const { data, error } = await supabase
     .from('leads')
     .insert({
@@ -44,8 +54,10 @@ export async function saveLead({ diagnosticoId, pharmaId, nome, telefone, email,
     .single()
 
   if (error) {
-    console.error('Erro ao salvar lead:', error)
+    console.error('[saveLead] Erro:', error.message, error)
     return null
   }
+
+  console.log('[saveLead] Salvo com ID:', data.id)
   return data.id
 }
