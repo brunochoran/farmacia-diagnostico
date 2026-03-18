@@ -9,6 +9,9 @@ export const BLOCKS = [
     bottleneckTitle: 'Leads chegando, vendas vazando',
     bottleneckText:
       'Resposta lenta ou sem script de fechamento desperdiça cada lead gerado pelos anúncios. O tráfego fez o trabalho — o atendimento não estava pronto.',
+    opportunityTitle: 'Atendimento acima da média — cada décimo percentual aqui vale mais que mais verba',
+    opportunityText:
+      'Você já converte bem. Pequenos ajustes no script de reativação e no follow-up podem aumentar a conversão sem precisar gerar mais leads.',
     questions: [
       {
         id: 'b0q0',
@@ -51,6 +54,9 @@ export const BLOCKS = [
     bottleneckTitle: 'Anúncio sem oferta compete só no preço',
     bottleneckText:
       'Sem uma oferta de entrada clara, o criativo não tem razão para gerar ação imediata. Frete grátis, desconto na primeira compra ou brinde mudam esse jogo.',
+    opportunityTitle: 'Estrutura de anúncios acima da média — o próximo salto é no criativo',
+    opportunityText:
+      'Você tem oferta, objetivo e estrutura. O que separa resultados bons de excepcionais agora é cadência de novos criativos e testes constantes.',
     questions: [
       {
         id: 'b1q0',
@@ -92,6 +98,9 @@ export const BLOCKS = [
     bottleneckTitle: 'Impulsionamento não é tráfego',
     bottleneckText:
       'Post impulsionado tem objetivo de engajamento. Campanha de Mensagens tem objetivo de conversa. São ferramentas diferentes com resultados diferentes.',
+    opportunityTitle: 'Meta Ads rodando bem — o ganho agora está na frequência de testes',
+    opportunityText:
+      'Campanha de mensagens, objetivo certo e rosto humano: você já faz o que a maioria ignora. Aumentar a cadência de criativos novos reduz o CPL sem aumentar verba.',
     questions: [
       {
         id: 'b2q0',
@@ -133,6 +142,9 @@ export const BLOCKS = [
     bottleneckTitle: 'Invisível para quem já quer comprar',
     bottleneckText:
       "Quem pesquisa 'farmácia de manipulação [cidade]' no Google já tem intenção de compra. Sem presença lá, você não existe para esse cliente.",
+    opportunityTitle: 'Boa presença no Google — ainda tem intenção de compra para capturar',
+    opportunityText:
+      'Perfil otimizado e anúncios ativos é combinação que poucos têm. Revisar o caminho do clique até o WhatsApp pode melhorar ainda mais sua taxa de conversão.',
     questions: [
       {
         id: 'b3q0',
@@ -174,6 +186,9 @@ export const BLOCKS = [
     bottleneckTitle: 'Autoridade que não aparece não converte',
     bottleneckText:
       'Você provavelmente tem credibilidade técnica. Mas sem presença consistente nas redes, ela fica restrita a quem já te conhece. Conteúdo e posicionamento resolvem isso.',
+    opportunityTitle: 'Autoridade visível — consistência vai amplificar o alcance',
+    opportunityText:
+      'Você já aparece e educa. Manter a cadência e testar formatos novos como vídeos curtos costuma dobrar o alcance orgânico sem custo extra.',
     questions: [
       {
         id: 'b4q0',
@@ -186,7 +201,7 @@ export const BLOCKS = [
       },
       {
         id: 'b4q1',
-        text: 'Sua farmácia tem uma comunicação que educa antes de tentar vender?',
+        text: 'Sua farmácia posta conteúdo relevante além de promoções?',
         options: [
           { label: 'Não — o conteúdo é quase todo promocional (produto, preço, desconto)', score: 0 },
           { label: 'Às vezes publicamos algo educativo, mas sem consistência', score: 1 },

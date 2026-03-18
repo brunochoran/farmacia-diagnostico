@@ -45,10 +45,10 @@ export default function Bottlenecks({ bottlenecks }) {
                 </span>
               </div>
               <p className="text-sm font-bold text-gray-900 mb-1">
-                {block.bottleneckTitle}
+                {note >= 4 ? block.opportunityTitle : block.bottleneckTitle}
               </p>
               <p className="text-xs text-gray-600 leading-relaxed">
-                {block.bottleneckText}
+                {note >= 4 ? block.opportunityText : block.bottleneckText}
               </p>
             </div>
           )

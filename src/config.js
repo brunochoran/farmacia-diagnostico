@@ -38,10 +38,10 @@ export const MATURITY_PROFILES = [
   {
     min: 16,
     max: 27,
-    name: 'Farmácia que Anuncia mas Não Tem Sistema',
+    name: 'Farmácia que anuncia, mas sem estratégia',
     color: '#EF9F27',
     description:
-      'Você já deu os primeiros passos. Mas os resultados são inconsistentes porque faltam as peças que transformam anúncio em crescimento previsível: atendimento, oferta e jornada. Tráfego sem sistema é custo. Com sistema, é ativo.',
+      'Você já deu os primeiros passos. Mas os resultados são inconsistentes, pois falta método no seu atendimento, oferta e jornada. Tráfego sem estratégia é jogar dinheiro fora. Com estratégia, é eficiente.',
     ctaText:
       'Você já tem movimento. Falta a estrutura que transforma isso em resultado consistente e previsível.',
   },
