@@ -1,27 +1,10 @@
 export default async function handler(req, res) {
-  const token = process.env.KOMMO_ACCESS_TOKEN
-  const subdomain = process.env.KOMMO_SUBDOMAIN
-
-  // Temporary debug: GET ?fields=leads or ?fields=companies
-  if (req.method === 'GET') {
-    const entity = req.query?.fields
-    if (entity === 'leads' || entity === 'companies') {
-      const r = await fetch(`https://${subdomain}.kommo.com/api/v4/${entity}/custom_fields`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      const data = await r.json()
-      const fields = (data?._embedded?.custom_fields || []).map(f => ({
-        id: f.id, name: f.name, type: f.field_type,
-        enums: f.enums?.map(e => ({ id: e.id, value: e.value })),
-      }))
-      return res.status(200).json(fields)
-    }
-    return res.status(400).json({ error: 'Use ?fields=leads or ?fields=companies' })
-  }
-
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
+
+  const token = process.env.KOMMO_ACCESS_TOKEN
+  const subdomain = process.env.KOMMO_SUBDOMAIN
 
   if (!token || !subdomain) {
     console.error('[Kommo] Variáveis de ambiente não configuradas')
@@ -59,11 +42,34 @@ export default async function handler(req, res) {
       values: [{ value: site }],
     })
   }
+  if (faturamentoMensal) {
+    companyFields.push({
+      field_id: 1573793, // Faturamento
+      values: [{ value: parseInt(faturamentoMensal, 10) }],
+    })
+  }
+
+  // ── Lead custom fields ─────────────────────────────────────
+  const leadFields = [
+    {
+      field_id: 1573659, // Origem do Lead
+      values: [{ enum_id: 1139135 }], // "Evento"
+    },
+    {
+      field_id: 1573356, // Source
+      values: [{ value: 'PharmaShare' }],
+    },
+    {
+      field_id: 1572762, // utm_source
+      values: [{ value: 'PharmaShare' }],
+    },
+  ]
 
   // ── Payload complex ───────────────────────────────────────
   const payload = [
     {
-      name: empresa || nome, // nome do lead = nome da empresa
+      name: empresa || nome,
+      custom_fields_values: leadFields,
       _embedded: {
         contacts: [
           {
@@ -113,9 +119,6 @@ export default async function handler(req, res) {
   if (leadId) {
     const noteParts = [
       profileName ? `Perfil: ${profileName} (nota ${totalScore ?? '—'})` : null,
-      faturamentoMensal
-        ? `Faturamento mensal: R$ ${Number(faturamentoMensal).toLocaleString('pt-BR')}`
-        : null,
       pharmaId ? `pharma_id: ${pharmaId}` : null,
     ].filter(Boolean)
 
