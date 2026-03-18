@@ -45,7 +45,7 @@ export default async function handler(req, res) {
   if (faturamentoMensal) {
     companyFields.push({
       field_id: 1573793, // Faturamento
-      values: [{ value: parseInt(faturamentoMensal, 10) }],
+      values: [{ value: String(faturamentoMensal) }],
     })
   }
 
