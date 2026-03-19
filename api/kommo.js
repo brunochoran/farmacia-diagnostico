@@ -1,3 +1,25 @@
+const BASE = (subdomain) => `https://${subdomain}.kommo.com/api/v4`
+
+async function kommoFetch(subdomain, token, path, method = 'GET', body) {
+  const res = await fetch(`${BASE(subdomain)}${path}`, {
+    method,
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    ...(body ? { body: JSON.stringify(body) } : {}),
+  })
+  return res
+}
+
+// Busca contato pelo telefone, retorna { contactId, leadId } ou null
+async function findByPhone(subdomain, token, telefone) {
+  const r = await kommoFetch(subdomain, token, `/contacts?query=${encodeURIComponent(telefone)}&with=leads`)
+  if (!r.ok) return null
+  const data = await r.json()
+  const contact = data?._embedded?.contacts?.[0]
+  if (!contact) return null
+  const leadId = contact?._embedded?.leads?.[0]?.id ?? null
+  return { contactId: contact.id, leadId }
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
@@ -11,96 +33,109 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Kommo não configurado' })
   }
 
-  const {
-    nome,
-    telefone,
-    email,
-    empresa,
-    site,
-    faturamentoMensal,
-    profileName,
-    totalScore,
-    pharmaId,
-  } = req.body
+  const { nome, telefone, email, empresa, site, faturamentoMensal, profileName, totalScore, pharmaId } = req.body
 
-  // ── Contato ───────────────────────────────────────────────
+  // ── Verifica se já existe contato com esse telefone ───────
+  const existing = await findByPhone(subdomain, token, telefone)
+
+  if (existing) {
+    // ── ATUALIZA lead e contato existentes ─────────────────
+    console.log('[Kommo] Contato existente encontrado, atualizando:', existing)
+
+    const updates = []
+
+    if (existing.leadId) {
+      const leadPatch = { custom_fields_values: [] }
+      if (profileName) leadPatch.name = empresa || nome
+      if (faturamentoMensal || profileName) {
+        // Atualiza nota com dados do diagnóstico
+        const noteParts = [
+          profileName ? `Perfil: ${profileName} (nota ${totalScore ?? '—'})` : null,
+          pharmaId ? `pharma_id: ${pharmaId}` : null,
+        ].filter(Boolean)
+        if (noteParts.length > 0) {
+          updates.push(
+            kommoFetch(subdomain, token, `/leads/${existing.leadId}/notes`, 'POST', [
+              { note_type: 'common', params: { text: noteParts.join('\n') } },
+            ])
+          )
+        }
+      }
+      // Atualiza campos customizados do lead (só os que temos valor)
+      updates.push(
+        kommoFetch(subdomain, token, `/leads/${existing.leadId}`, 'PATCH', leadPatch)
+      )
+    }
+
+    // Atualiza contato com email se veio
+    if (email) {
+      updates.push(
+        kommoFetch(subdomain, token, `/contacts/${existing.contactId}`, 'PATCH', {
+          custom_fields_values: [
+            { field_code: 'EMAIL', values: [{ value: email, enum_code: 'WORK' }] },
+          ],
+        })
+      )
+    }
+
+    // Atualiza empresa se tiver dados novos
+    if (empresa || site || faturamentoMensal) {
+      const companyFields = []
+      if (site) companyFields.push({ field_code: 'WEB', values: [{ value: site }] })
+      if (faturamentoMensal) companyFields.push({ field_id: 1573793, values: [{ value: String(faturamentoMensal) }] })
+      if (companyFields.length > 0) {
+        // Busca empresa vinculada ao contato
+        const cRes = await kommoFetch(subdomain, token, `/contacts/${existing.contactId}?with=companies`)
+        if (cRes.ok) {
+          const cData = await cRes.json()
+          const companyId = cData?._embedded?.companies?.[0]?.id
+          if (companyId) {
+            updates.push(
+              kommoFetch(subdomain, token, `/companies/${companyId}`, 'PATCH', {
+                ...(empresa ? { name: empresa } : {}),
+                custom_fields_values: companyFields,
+              })
+            )
+          }
+        }
+      }
+    }
+
+    await Promise.all(updates).catch(err => console.error('[Kommo] Erro ao atualizar:', err))
+    console.log('[Kommo] Lead atualizado, id:', existing.leadId)
+    return res.status(200).json({ ok: true, leadId: existing.leadId, action: 'updated' })
+  }
+
+  // ── CRIA novo lead ─────────────────────────────────────────
   const contactFields = [
     { field_code: 'PHONE', values: [{ value: telefone, enum_code: 'WORK' }] },
   ]
-  if (email) {
-    contactFields.push({
-      field_code: 'EMAIL',
-      values: [{ value: email, enum_code: 'WORK' }],
-    })
-  }
+  if (email) contactFields.push({ field_code: 'EMAIL', values: [{ value: email, enum_code: 'WORK' }] })
 
-  // ── Empresa ───────────────────────────────────────────────
   const companyFields = []
-  if (site) {
-    companyFields.push({
-      field_code: 'WEB',
-      values: [{ value: site }],
-    })
-  }
-  if (faturamentoMensal) {
-    companyFields.push({
-      field_id: 1573793, // Faturamento
-      values: [{ value: String(faturamentoMensal) }],
-    })
-  }
+  if (site) companyFields.push({ field_code: 'WEB', values: [{ value: site }] })
+  if (faturamentoMensal) companyFields.push({ field_id: 1573793, values: [{ value: String(faturamentoMensal) }] })
 
-  // ── Lead custom fields ─────────────────────────────────────
   const leadFields = [
-    {
-      field_id: 1573659, // Origem do Lead
-      values: [{ enum_id: 1139135 }], // "Evento"
-    },
-    {
-      field_id: 1573356, // Source
-      values: [{ value: 'PharmaShare' }],
-    },
-    {
-      field_id: 1572762, // utm_source
-      values: [{ value: 'PharmaShare' }],
-    },
+    { field_id: 1573659, values: [{ enum_id: 1139135 }] }, // Origem do Lead = Evento
+    { field_id: 1573356, values: [{ value: 'PharmaShare' }] }, // Source
+    { field_id: 1572762, values: [{ value: 'PharmaShare' }] }, // utm_source
   ]
 
-  // ── Payload complex ───────────────────────────────────────
   const payload = [
     {
       name: empresa || nome,
       custom_fields_values: leadFields,
       _embedded: {
-        contacts: [
-          {
-            name: nome,
-            custom_fields_values: contactFields,
-          },
-        ],
-        ...(empresa
-          ? {
-              companies: [
-                {
-                  name: empresa,
-                  custom_fields_values: companyFields,
-                },
-              ],
-            }
-          : {}),
+        contacts: [{ name: nome, custom_fields_values: contactFields }],
+        ...(empresa ? { companies: [{ name: empresa, custom_fields_values: companyFields }] } : {}),
       },
     },
   ]
 
   let kommoRes
   try {
-    kommoRes = await fetch(`https://${subdomain}.kommo.com/api/v4/leads/complex`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    })
+    kommoRes = await kommoFetch(subdomain, token, '/leads/complex', 'POST', payload)
   } catch (err) {
     console.error('[Kommo] Erro de rede:', err)
     return res.status(502).json({ error: 'Kommo unreachable' })
@@ -115,7 +150,6 @@ export default async function handler(req, res) {
   const data = await kommoRes.json()
   const leadId = data?._embedded?.leads?.[0]?.id
 
-  // ── Nota no lead com dados do diagnóstico ─────────────────
   if (leadId) {
     const noteParts = [
       profileName ? `Perfil: ${profileName} (nota ${totalScore ?? '—'})` : null,
@@ -123,22 +157,12 @@ export default async function handler(req, res) {
     ].filter(Boolean)
 
     if (noteParts.length > 0) {
-      await fetch(`https://${subdomain}.kommo.com/api/v4/leads/${leadId}/notes`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify([
-          {
-            note_type: 'common',
-            params: { text: noteParts.join('\n') },
-          },
-        ]),
-      }).catch(err => console.error('[Kommo] Erro ao criar nota:', err))
+      await kommoFetch(subdomain, token, `/leads/${leadId}/notes`, 'POST', [
+        { note_type: 'common', params: { text: noteParts.join('\n') } },
+      ]).catch(err => console.error('[Kommo] Erro ao criar nota:', err))
     }
   }
 
   console.log('[Kommo] Lead criado, id:', leadId)
-  return res.status(200).json({ ok: true, leadId })
+  return res.status(200).json({ ok: true, leadId, action: 'created' })
 }
