@@ -14,9 +14,10 @@ import FifaCard from './FifaCard.jsx'
 import RevenueEstimate from './RevenueEstimate.jsx'
 import Bottlenecks from './Bottlenecks.jsx'
 import CTACard from './CTACard.jsx'
+import LeadFormCard from './LeadFormCard.jsx'
 import { AGENCY_NAME } from '../config.js'
 
-export default function ScreenResult({ answers, ticketAverage, onRestart, onOpenForm }) {
+export default function ScreenResult({ answers, ticketAverage, onRestart, onFormSubmit, pharmaId }) {
   const totalScore = useMemo(() => getTotalScore(answers), [answers])
   const overallNote = useMemo(() => getOverallNote(totalScore), [totalScore])
   const profile = useMemo(() => getMaturityProfile(totalScore), [totalScore])
@@ -63,18 +64,23 @@ export default function ScreenResult({ answers, ticketAverage, onRestart, onOpen
           <RevenueEstimate revenue={revenue} ticketAverage={ticketAverage} />
         </div>
 
-        {/* 4 — Gargalos */}
+        {/* 4 — Formulário de contato */}
         <div className="fade-in fade-in-4">
+          <LeadFormCard pharmaId={pharmaId} onSubmit={onFormSubmit} />
+        </div>
+
+        {/* 5 — Gargalos */}
+        <div className="fade-in fade-in-5">
           <Bottlenecks bottlenecks={bottlenecks} />
         </div>
 
-        {/* 5 — CTA */}
-        <div className="fade-in fade-in-5">
-          <CTACard profile={profile} positionamentoNote={positionamentoNote} onOpenForm={onOpenForm} />
+        {/* 6 — CTA */}
+        <div className="fade-in fade-in-6">
+          <CTACard profile={profile} positionamentoNote={positionamentoNote} />
         </div>
 
         {/* Refazer */}
-        <div className="fade-in fade-in-6 pb-8 text-center">
+        <div className="fade-in fade-in-7 pb-8 text-center">
           <button
             onClick={onRestart}
             className="text-sm text-gray-400 hover:text-gray-600 underline underline-offset-2 transition-colors"
