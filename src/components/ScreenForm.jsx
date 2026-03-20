@@ -17,7 +17,7 @@ function maskCurrency(value) {
   const digits = value.replace(/\D/g, '').slice(0, 12)
   if (!digits) return ''
   const num = parseInt(digits, 10) / 100
-  return num.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+  return num.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 })
 }
 
 function parseCurrency(masked) {
