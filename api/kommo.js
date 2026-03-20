@@ -141,7 +141,7 @@ export default async function handler(req, res) {
         custom_fields_values: leadFields,
         _embedded: {
           contacts: [{ name: nome, custom_fields_values: contactFields }],
-          ...(empresa ? { companies: [{ name: empresa, custom_fields_values: companyFields }] } : {}),
+          ...(empresa ? { companies: [{ name: empresa, ...(companyFields.length > 0 ? { custom_fields_values: companyFields } : {}) }] } : {}),
         },
       },
     ]
