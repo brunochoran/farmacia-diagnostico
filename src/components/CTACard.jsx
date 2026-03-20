@@ -1,14 +1,7 @@
 import { AGENCY_NAME } from '../config.js'
 
-const WHATSAPP_NUMBER = '551152427599'
-
-export default function CTACard({ profile, positionamentoNote }) {
+export default function CTACard({ profile, positionamentoNote, onOpenForm }) {
   const showPalestiraLine = positionamentoNote < 3
-
-  function handleClick() {
-    const msg = encodeURIComponent(`Olá equipe ${AGENCY_NAME}!\n\nAcabei de fazer o *Diagnóstico Digital* e gostaria de conversar.`)
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank')
-  }
 
   return (
     <div className="bg-brand px-6 py-7 text-white">
@@ -28,7 +21,7 @@ export default function CTACard({ profile, positionamentoNote }) {
       )}
 
       <button
-        onClick={handleClick}
+        onClick={onOpenForm}
         className="w-full text-center bg-white text-brand font-black text-sm py-4 px-6 hover:bg-gray-100 active:scale-95 transition-all duration-150"
       >
         Conversar com a equipe da {AGENCY_NAME} →

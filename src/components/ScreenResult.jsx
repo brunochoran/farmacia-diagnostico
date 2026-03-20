@@ -14,19 +14,15 @@ import FifaCard from './FifaCard.jsx'
 import RevenueEstimate from './RevenueEstimate.jsx'
 import Bottlenecks from './Bottlenecks.jsx'
 import CTACard from './CTACard.jsx'
-import LeadFormCard from './LeadFormCard.jsx'
 import { AGENCY_NAME } from '../config.js'
 
-export default function ScreenResult({ answers, ticketAverage, onRestart, onFormSubmit, pharmaId }) {
+export default function ScreenResult({ answers, ticketAverage, onRestart, onOpenForm }) {
   const totalScore = useMemo(() => getTotalScore(answers), [answers])
   const overallNote = useMemo(() => getOverallNote(totalScore), [totalScore])
   const profile = useMemo(() => getMaturityProfile(totalScore), [totalScore])
   const radarData = useMemo(() => getRadarData(answers), [answers])
   const bottlenecks = useMemo(() => getBottlenecks(answers), [answers])
-  const revenue = useMemo(
-    () => getRevenueEstimate(ticketAverage),
-    [ticketAverage]
-  )
+  const revenue = useMemo(() => getRevenueEstimate(ticketAverage), [ticketAverage])
   const positionamentoNote = useMemo(
     () => getBlockNote(getBlockScore(4, answers)),
     [answers]
@@ -52,11 +48,7 @@ export default function ScreenResult({ answers, ticketAverage, onRestart, onForm
 
         {/* 2 — Card FIFA */}
         <div className="fade-in fade-in-2 flex justify-center">
-          <FifaCard
-            overallNote={overallNote}
-            profile={profile}
-            radarData={radarData}
-          />
+          <FifaCard overallNote={overallNote} profile={profile} radarData={radarData} />
         </div>
 
         {/* 3 — Estimativa de faturamento */}
@@ -64,9 +56,9 @@ export default function ScreenResult({ answers, ticketAverage, onRestart, onForm
           <RevenueEstimate revenue={revenue} ticketAverage={ticketAverage} />
         </div>
 
-        {/* 4 — Formulário de contato */}
+        {/* 4 — CTA (antes dos gargalos) */}
         <div className="fade-in fade-in-4">
-          <LeadFormCard pharmaId={pharmaId} onSubmit={onFormSubmit} />
+          <CTACard profile={profile} positionamentoNote={positionamentoNote} onOpenForm={onOpenForm} />
         </div>
 
         {/* 5 — Gargalos */}
@@ -74,13 +66,8 @@ export default function ScreenResult({ answers, ticketAverage, onRestart, onForm
           <Bottlenecks bottlenecks={bottlenecks} />
         </div>
 
-        {/* 6 — CTA */}
-        <div className="fade-in fade-in-6">
-          <CTACard profile={profile} positionamentoNote={positionamentoNote} />
-        </div>
-
         {/* Refazer */}
-        <div className="fade-in fade-in-7 pb-8 text-center">
+        <div className="fade-in fade-in-6 pb-8 text-center">
           <button
             onClick={onRestart}
             className="text-sm text-gray-400 hover:text-gray-600 underline underline-offset-2 transition-colors"

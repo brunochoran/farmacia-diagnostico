@@ -157,8 +157,21 @@ export default function App() {
         answers={answers}
         ticketAverage={ticketAverage}
         onRestart={handleRestart}
-        onFormSubmit={handleFormSubmit}
+        onOpenForm={() => setCurrentScreen('form')}
+      />
+    )
+  }
+
+  if (currentScreen === 'form') {
+    const totalScore = getTotalScore(answers)
+    const profile = getMaturityProfile(totalScore)
+    return (
+      <ScreenForm
+        profileName={profile.name}
+        totalScore={totalScore}
         pharmaId={pharmaId}
+        onSubmit={handleFormSubmit}
+        onBack={() => setCurrentScreen('result')}
       />
     )
   }
