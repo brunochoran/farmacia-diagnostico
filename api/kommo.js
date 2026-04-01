@@ -42,7 +42,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Kommo não configurado' })
   }
 
-  const { nome, telefone, email, empresa, site, faturamentoMensal, profileName, totalScore, pharmaId } = req.body
+  const { nome, telefone, email, empresa, site, faturamentoMensal, profileName, totalScore, pharmaId, utmSource, nota } = req.body
 
   try {
     // ── Verifica se já existe contato com esse telefone ───────
@@ -58,15 +58,15 @@ export default async function handler(req, res) {
         const leadPatch = { custom_fields_values: [] }
         if (profileName) leadPatch.name = empresa || nome
 
-        const noteParts = [
+        const noteText = nota || [
           profileName ? `Perfil: ${profileName} (nota ${totalScore ?? '—'})` : null,
           pharmaId ? `pharma_id: ${pharmaId}` : null,
-        ].filter(Boolean)
+        ].filter(Boolean).join('\n')
 
-        if (noteParts.length > 0) {
+        if (noteText) {
           updates.push(
             kommoFetch(subdomain, token, `/leads/${existing.leadId}/notes`, 'POST', [
-              { note_type: 'common', params: { text: noteParts.join('\n') } },
+              { note_type: 'common', params: { text: noteText } },
             ])
           )
         }
@@ -129,10 +129,11 @@ export default async function handler(req, res) {
     if (site) companyFields.push({ field_code: 'WEB', values: [{ value: site }] })
     if (faturamentoMensal) companyFields.push({ field_id: 1573793, values: [{ value: String(faturamentoMensal) }] })
 
+    const sourceValue = utmSource || 'PharmaShare'
     const leadFields = [
       { field_id: 1573659, values: [{ enum_id: 1139135 }] }, // Origem do Lead = Evento
-      { field_id: 1573356, values: [{ value: 'PharmaShare' }] }, // Source
-      { field_id: 1572762, values: [{ value: 'PharmaShare' }] }, // utm_source
+      { field_id: 1573356, values: [{ value: sourceValue }] }, // Source
+      { field_id: 1572762, values: [{ value: sourceValue }] }, // utm_source
     ]
 
     const payload = [
@@ -158,14 +159,14 @@ export default async function handler(req, res) {
     const leadId = data?._embedded?.leads?.[0]?.id
 
     if (leadId) {
-      const noteParts = [
+      const noteText = nota || [
         profileName ? `Perfil: ${profileName} (nota ${totalScore ?? '—'})` : null,
         pharmaId ? `pharma_id: ${pharmaId}` : null,
-      ].filter(Boolean)
+      ].filter(Boolean).join('\n')
 
-      if (noteParts.length > 0) {
+      if (noteText) {
         await kommoFetch(subdomain, token, `/leads/${leadId}/notes`, 'POST', [
-          { note_type: 'common', params: { text: noteParts.join('\n') } },
+          { note_type: 'common', params: { text: noteText } },
         ]).catch(err => console.error('[Kommo] Erro ao criar nota:', err))
       }
     }
